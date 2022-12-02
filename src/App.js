@@ -1,37 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import './style.css';
-import MimeList from './ListComponent/MimeList';
+import RedditListContainer from './ListComponent/RedditListContainer';
 
 export default function App() {
-  let after = '';
-  const [listItems, setListItems] = useState(null);
-  const fetchData = async () => {
-    let url = 'https://www.reddit.com/r/aww.json';
+  const [listItems, setListItems] = useState([]);
+  const [after, setAfter] = useState('');
+  const [loading, setLoading] = useState(false);
 
+  //fetch data from reddit
+  const fetchData = async () => {
+    let postFix = after ? `?after=${after}` : '';
+    let url = `https://www.reddit.com/r/aww.json${postFix}`;
     fetch(url)
       .then((response) => {
         return response.json();
       })
       .then((body) => {
         const { data } = body;
-        console.log(data);
-        const { children } = data;
-
-        console.log(children.map((val) => val.data));
-
-        setListItems(children.map((val) => val.data));
+        const { children, after } = data;
+        console.log(after);
+        setAfter(after);
+        setListItems([...listItems, ...children.map((val) => val.data)]);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.error(error);
+        alert('something went wrong');
       });
+  };
+
+  /**
+   * populate listItems
+   * then listen to the scroll window event
+   */
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [listItems]);
+
+  const handleScroll = async () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop + 1 >=
+      document.documentElement.scrollHeight
+    ) {
+      setLoading(true);
+      setTimeout(async () => {
+        fetchData();
+      }, 1500);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
   return (
     <div>
-      <h1>Hello StackBlitz!</h1>
-      <p>Start editing to see some magic happen :)</p>
-
-      <MimeList fetchData={fetchData} listItems={listItems} />
+      <RedditListContainer
+        fetchData={fetchData}
+        listItems={listItems}
+        setLoading={setLoading}
+        loading={loading}
+      />
     </div>
   );
 }
