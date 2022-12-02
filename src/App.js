@@ -26,7 +26,7 @@ export default function App() {
       .catch((error) => {
         setLoading(false);
         console.error(error);
-        alert('something went wrong');
+        
       });
   };
 
