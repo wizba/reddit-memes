@@ -1,21 +1,21 @@
 import React from 'react';
-
-const MimeList = (props) => {
-  const { listItems, fetchData } = props;
-
+import Loader from './Loader';
+const RedditListContainer = (props) => {
+  const { listItems, fetchData, loading, setLoading } = props;
   return (
-    <div class="_row">
+    <div className="_row">
       {listItems?.map((item) => (
-        <MimeItem item={item} />
+        <RedditListItem item={item} />
       ))}
+      {loading && <Loader />}
     </div>
   );
 };
 
-const MimeItem = (props) => {
+const RedditListItem = (props) => {
   const { item } = props;
   return (
-    <div class="column">
+    <div className="column">
       {item?.thumbnail && (
         <img
           className="my_img"
@@ -26,21 +26,25 @@ const MimeItem = (props) => {
       )}
       <div>
         <div>
-          <div className="text d-flex align-items-center">
+          <div className="text d-flex align-items-center myColor2">
             <span>
               <CommentIcon />
             </span>
-            <span className="comment">{item.num_comments} comments</span>
+            <span className="comment comment_color">
+              {item.num_comments} comments
+            </span>
           </div>
         </div>
         <div>
           <a
-            className="text link"
+            className="link"
             href={`https://www.reddit.com/${item.permalink}`}
             target="_blank"
           >
             {' '}
-            <b>{item?.title}</b>
+            <p className="text">
+              <b>{item?.title}</b>
+            </p>
           </a>
         </div>
         <div>
@@ -51,8 +55,6 @@ const MimeItem = (props) => {
     </div>
   );
 };
-
-export default MimeList;
 
 const CommentIcon = () => {
   return (
@@ -68,3 +70,5 @@ const CommentIcon = () => {
     </svg>
   );
 };
+
+export default RedditListContainer;
